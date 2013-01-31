@@ -12,7 +12,7 @@ var (
 	}
 )
 
-func AddFunc(name string, i interface{}) *Template {
+func AddFunc(name string, i interface{}) {
 	if _, ok := extFunc[name]; !ok {
 		extFunc[name] = i
 	} else {
@@ -20,7 +20,7 @@ func AddFunc(name string, i interface{}) *Template {
 	}
 }
 
-func DelFunc(name string) *Template {
+func DelFunc(name string) {
 	if _, ok := extFunc[name]; ok {
 		delete(extFunc, name)
 	}
