@@ -16,18 +16,18 @@ func (n *nameSpace) get(name string) (*Template, bool) {
 	return t, b
 }
 
-func (n *nameSpace) Len() int {
+func (n *nameSpace) Length() int {
 	n.mu.RLock()
 	defer n.mu.RUnlock()
 	return len(n.tmpls)
 }
 
-func (n *nameSpace) Get(name string) *Template {
+func (n *nameSpace) Lookup(name string) *Template {
 	t, _ := n.get(name)
 	return t
 }
 
-func (n *nameSpace) Add(name string, t *Template) {
+func (n *nameSpace) Insert(name string, t *Template) {
 	if _, ok := n.get(name); !ok {
 		n.mu.Lock()
 		n.tmpls[name] = t
@@ -35,7 +35,7 @@ func (n *nameSpace) Add(name string, t *Template) {
 	}
 }
 
-func (n *nameSpace) Del(name string) {
+func (n *nameSpace) Remove(name string) {
 	if _, ok := n.get(name); ok {
 		n.mu.Lock()
 		n.mu.Unlock()
@@ -43,7 +43,7 @@ func (n *nameSpace) Del(name string) {
 	}
 }
 
-func (n *nameSpace) Set(name string, t *Template) {
+func (n *nameSpace) Upsert(name string, t *Template) {
 	n.mu.Lock()
 	defer n.mu.Unlock()
 	n.tmpls[name] = t

@@ -42,7 +42,7 @@ func New(name string) *Template {
 		},
 	}
 
-	tmpl.nameSpace.Add(name, tmpl)
+	tmpl.nameSpace.Insert(name, tmpl)
 
 	return tmpl
 }
@@ -104,25 +104,6 @@ func ParseGlob(pattern string) (*Template, error) {
 	return parseGlob(nil, pattern)
 }
 
-/*func (t *Template) AddFunc(name string, i interface{}) *Template {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	t.init()
-	if _, ok := t.funcMap[name]; !ok {
-		t.funcMap[name] = i
-	} else {
-		log.Warn("<Template.AddFunc> ", "func:"+name+" be added,do not repeat to add")
-	}
-}
-
-func (t *Template) DelFunc(name string) *Template {
-	t.mu.Lock()
-	defer t.mu.Unlock()
-	if _, ok := t.funcMap[name]; ok {
-		delete(t.funcMap, name)
-	}
-}*/
-
 func (t *Template) AddParseTree(name string, tree *parse.Tree) (*Template, error) {
 	text, err := t.text.AddParseTree(name, tree)
 	if err != nil {
@@ -136,7 +117,7 @@ func (t *Template) AddParseTree(name string, tree *parse.Tree) (*Template, error
 	}
 	t.nameSpace.mu.RUnlock()
 
-	t.nameSpace.Set(name, ret)
+	t.nameSpace.Upsert(name, ret)
 	return ret, nil
 }
 
@@ -167,7 +148,7 @@ func (t *Template) Clone() (*Template, error) {
 		}
 
 		t.nameSpace.mu.RLock()
-		ret.nameSpace.Set(name, &Template{
+		ret.nameSpace.Upsert(name, &Template{
 			x,
 			ret.nameSpace,
 		})
@@ -219,10 +200,6 @@ func (t *Template) Funcs(funcMap FuncMap) *Template {
 	return t
 }
 
-func (t *Template) Lookup(name string) *Template {
-	return t.nameSpace.Get(name)
-}
-
 func (t *Template) Name() string {
 	return t.text.Name()
 }
@@ -239,14 +216,14 @@ func (t *Template) new(name string) *Template {
 	}
 	t.nameSpace.mu.RUnlock()
 
-	tmpl.nameSpace.Set(name, tmpl)
+	tmpl.nameSpace.Upsert(name, tmpl)
 	return tmpl
 }
 
 func (t *Template) Templates() []*Template {
 	ns := t.nameSpace
 	// Return a slice so we don't expose the map.
-	m := make([]*Template, 0, ns.Len())
+	m := make([]*Template, 0, ns.Length())
 
 	ns.mu.RLock()
 	for _, v := range ns.tmpls {
