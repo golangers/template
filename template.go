@@ -13,7 +13,7 @@ import (
 type FuncMap map[string]interface{}
 
 type Template struct {
-	text template.Template
+	text *template.Template
 	*nameSpace
 }
 
@@ -65,7 +65,7 @@ func parseFiles(t *Template, filenames ...string) (*Template, error) {
 
 		var tmpl *Template
 		if t == nil {
-			t = template.New(name)
+			t = New(name)
 		}
 
 		if name == t.Name() {
@@ -136,7 +136,7 @@ func (t *Template) Clone() (*Template, error) {
 
 	for _, x := range textClone.Templates() {
 		name := x.Name()
-		if src, ok := t.nameSpace.get(name); !ok {
+		if _, ok := t.nameSpace.get(name); !ok {
 			return nil, fmt.Errorf("html/template: cannot Clone %q after it has executed", t.Name())
 		}
 
